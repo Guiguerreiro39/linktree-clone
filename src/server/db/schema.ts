@@ -12,8 +12,8 @@ import { index, pgTableCreator } from "drizzle-orm/pg-core";
  */
 export const createTable = pgTableCreator((name) => `linktree-clone_${name}`);
 
-export const posts = createTable(
-  "post",
+export const link = createTable(
+  "link",
   (d) => ({
     id: d.integer().primaryKey().generatedByDefaultAsIdentity(),
     name: d.varchar({ length: 256 }),
