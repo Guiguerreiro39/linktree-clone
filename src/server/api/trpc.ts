@@ -11,6 +11,7 @@ import superjson from "superjson";
 import { ZodError } from "zod";
 
 import { db } from "@/server/db";
+import { auth } from "@clerk/nextjs/server";
 
 /**
  * 1. CONTEXT
@@ -26,6 +27,7 @@ import { db } from "@/server/db";
  */
 export const createTRPCContext = async (opts: { headers: Headers }) => {
   return {
+    userId: (await auth()).userId,
     db,
     ...opts,
   };
@@ -104,3 +106,28 @@ const timingMiddleware = t.middleware(async ({ next, path }) => {
  * are logged in.
  */
 export const publicProcedure = t.procedure.use(timingMiddleware);
+
+export const protectedProcedure = t.procedure
+  .use(timingMiddleware)
+  .use(async (opts) => {
+    const { userId } = opts.ctx;
+
+    if (!userId) {
+      throw new Error("Unauthorized: user is not authenticated");
+    }
+
+    const user = await opts.ctx.db.query.user.findFirst({
+      where: (user, { eq }) => eq(user.clerkId, userId),
+    });
+
+    if (!user) {
+      throw new Error("Unauthorized: user not found");
+    }
+
+    return opts.next({
+      ctx: {
+        ...opts.ctx,
+        userId: user.id,
+      },
+    });
+  });
