@@ -1,14 +1,17 @@
-import { api, HydrateClient } from "@/trpc/server";
-import { SignOutButton } from "@clerk/nextjs";
+import { HydrateClient } from "@/trpc/server";
+import { redirect } from "next/navigation";
+import { api } from "@/trpc/server";
 
-export default async function Home() {
-  void api.link.getMany.prefetch();
+export default async function AdminPage() {
+  const page = await api.page.get();
+
+  if (!page) {
+    redirect("/onboarding");
+  }
 
   return (
     <HydrateClient>
-      <main className="flex min-h-screen flex-col items-center justify-center">
-        <SignOutButton />
-      </main>
+      <main className="flex min-h-screen flex-col items-center justify-center"></main>
     </HydrateClient>
   );
 }

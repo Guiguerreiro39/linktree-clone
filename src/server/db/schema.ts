@@ -17,7 +17,10 @@ export const link = createTable(
   (d) => ({
     id: d.uuid("id").primaryKey().defaultRandom(),
     name: d.varchar({ length: 256 }),
-    userId: d.uuid("user_id").notNull(),
+    pageId: d.uuid("page_id").notNull(),
+
+    url: d.text("url").notNull(),
+
     createdAt: d
       .timestamp({ withTimezone: true })
       .default(sql`CURRENT_TIMESTAMP`)
@@ -28,20 +31,19 @@ export const link = createTable(
 );
 
 export const linkRelations = relations(link, ({ one }) => ({
-  user: one(user, {
-    fields: [link.userId],
-    references: [user.id],
+  page: one(page, {
+    fields: [link.pageId],
+    references: [page.id],
   }),
 }));
 
-export const user = createTable("user", (d) => ({
+export const page = createTable("page", (d) => ({
   id: d.uuid("id").primaryKey().defaultRandom(),
-  clerkId: d.text("clerk_id").notNull().unique(),
+  userId: d.uuid("user_id").notNull(),
 
-  firstName: d.varchar("first_name", { length: 256 }),
-  lastName: d.varchar("last_name", { length: 256 }),
-
-  imageUrl: d.text("image_url").notNull(),
+  tag: d.varchar("tag", { length: 30 }),
+  bio: d.varchar("bio", { length: 160 }),
+  imageUrl: d.text("image_url"),
 
   createdAt: d
     .timestamp("created_at", { withTimezone: true })
@@ -53,6 +55,28 @@ export const user = createTable("user", (d) => ({
     .notNull(),
 }));
 
-export const usersRelations = relations(user, ({ many }) => ({
+export const pageRelations = relations(page, ({ one, many }) => ({
   links: many(link),
+  user: one(user, {
+    fields: [page.userId],
+    references: [user.id],
+  }),
+}));
+
+export const user = createTable("user", (d) => ({
+  id: d.uuid("id").primaryKey().defaultRandom(),
+  clerkId: d.text("clerk_id").notNull().unique(),
+
+  firstName: d.varchar("first_name", { length: 256 }),
+  lastName: d.varchar("last_name", { length: 256 }),
+  imageUrl: d.text("image_url").notNull(),
+
+  createdAt: d
+    .timestamp("created_at", { withTimezone: true })
+    .default(sql`CURRENT_TIMESTAMP`)
+    .notNull(),
+  updatedAt: d
+    .timestamp("updated_at", { withTimezone: true })
+    .$onUpdate(() => new Date())
+    .notNull(),
 }));

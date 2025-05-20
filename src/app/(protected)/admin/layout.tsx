@@ -4,9 +4,9 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <main className="w-full space-y-2">
+    <main className="bg-sidebar w-full">
       <Navbar />
-      {children}
+      <div className="bg-background rounded-t-2xl p-4">{children}</div>
     </main>
   );
 }

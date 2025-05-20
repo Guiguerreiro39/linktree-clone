@@ -5,10 +5,12 @@ import { UserButton } from "@clerk/nextjs";
 export default function Navbar() {
   return (
     <nav className="sticky top-0 z-20 flex flex-col">
-      <div className="bg-sidebar flex items-center justify-between px-4 py-3 text-white">
+      <div className="bg-sidebar flex items-center justify-between p-4 text-white">
         <Logo width={18} height={18} />
         <UserButton
-          appearance={{ variables: { colorText: "white" } }}
+          appearance={{
+            elements: { userButtonOuterIdentifier: "!text-white" },
+          }}
           showName
           fallback={<UserProfileDefault />}
         />
