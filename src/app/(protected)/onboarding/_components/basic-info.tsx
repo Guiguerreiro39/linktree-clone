@@ -13,11 +13,7 @@ import {
 import { Input } from "@/components/ui/input";
 
 import { Textarea } from "@/components/ui/textarea";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Image, LoaderCircle } from "lucide-react";
-import { useUploadToStorage } from "@/hooks/use-upload-to-storage";
-import { ImageLoading } from "@/components/image-loading";
-import { useState } from "react";
+import { InputAvatar } from "@/components/input-avatar";
 
 type Props = {
   onNext: () => void;
@@ -26,9 +22,6 @@ type Props = {
 };
 
 export const BasicInfoStep = ({ onNext, onBack, control }: Props) => {
-  const [uploadedFile, setUploadedFile] = useState<File | null>(null);
-  const { mutate: uploadToStorage } = useUploadToStorage();
-
   return (
     <div className="space-y-4">
       <h1 className="text-2xl font-bold">Basic Information</h1>
@@ -42,37 +35,11 @@ export const BasicInfoStep = ({ onNext, onBack, control }: Props) => {
               <FormMessage />
             </div>
             <FormControl>
-              <div className="space-y-2">
-                <Avatar className="h-16 w-16">
-                  <AvatarImage src={field.value} />
-                  <AvatarFallback>
-                    {uploadedFile ? (
-                      <ImageLoading file={uploadedFile} />
-                    ) : (
-                      /* eslint-disable-next-line jsx-a11y/alt-text */
-                      <Image size={25} />
-                    )}
-                  </AvatarFallback>
-                </Avatar>
-                <Input
-                  type="file"
-                  className="w-fit"
-                  onChange={async (e) => {
-                    const file = (e.target as HTMLInputElement).files?.[0];
-
-                    if (!file) {
-                      return;
-                    }
-
-                    setUploadedFile(file);
-
-                    const data = await uploadToStorage(file);
-
-                    field.onChange(data.publicUrl);
-                  }}
-                />
-              </div>
+              <InputAvatar onChange={field.onChange} value={field.value} />
             </FormControl>
+            <FormDescription>
+              This is the image that will be displayed on your page.
+            </FormDescription>
           </FormItem>
         )}
       />
