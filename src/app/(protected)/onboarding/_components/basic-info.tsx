@@ -16,6 +16,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Image, LoaderCircle } from "lucide-react";
 import { useUploadToStorage } from "@/hooks/use-upload-to-storage";
+import { ImageLoading } from "@/components/image-loading";
+import { useState } from "react";
 
 type Props = {
   onNext: () => void;
@@ -24,6 +26,7 @@ type Props = {
 };
 
 export const BasicInfoStep = ({ onNext, onBack, control }: Props) => {
+  const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const { mutate: uploadToStorage } = useUploadToStorage();
 
   return (
@@ -43,8 +46,12 @@ export const BasicInfoStep = ({ onNext, onBack, control }: Props) => {
                 <Avatar className="h-16 w-16">
                   <AvatarImage src={field.value} />
                   <AvatarFallback>
-                    {/* eslint-disable-next-line jsx-a11y/alt-text */}
-                    <Image size={25} />
+                    {uploadedFile ? (
+                      <ImageLoading file={uploadedFile} />
+                    ) : (
+                      /* eslint-disable-next-line jsx-a11y/alt-text */
+                      <Image size={25} />
+                    )}
                   </AvatarFallback>
                 </Avatar>
                 <Input
@@ -57,7 +64,7 @@ export const BasicInfoStep = ({ onNext, onBack, control }: Props) => {
                       return;
                     }
 
-                    field.onChange(URL.createObjectURL(file));
+                    setUploadedFile(file);
 
                     const data = await uploadToStorage(file);
 

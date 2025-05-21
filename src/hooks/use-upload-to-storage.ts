@@ -1,8 +1,16 @@
 import { api } from "@/trpc/react";
 
 export const useUploadToStorage = () => {
-  const { mutateAsync: presignUpload } = api.page.presignUpload.useMutation();
-  const { mutateAsync: confirmUpload } = api.page.confirmUpload.useMutation();
+  const {
+    mutateAsync: presignUpload,
+    isPending: isPresignPending,
+    isSuccess: isPresignSuccess,
+  } = api.page.presignUpload.useMutation();
+  const {
+    mutateAsync: confirmUpload,
+    isPending: isConfirmPending,
+    isIdle: isConfirmIdle,
+  } = api.page.confirmUpload.useMutation();
 
   return {
     mutate: async (file: File) => {
@@ -21,5 +29,9 @@ export const useUploadToStorage = () => {
 
       return await confirmUpload({ fileKey });
     },
+    isPending:
+      isPresignPending ||
+      isConfirmPending ||
+      (isPresignSuccess && isConfirmIdle),
   };
 };

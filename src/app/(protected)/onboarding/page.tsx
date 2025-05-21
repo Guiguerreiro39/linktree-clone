@@ -70,15 +70,15 @@ export default function OnboardingPage() {
                         onNext={async () => {
                           await form.trigger();
 
-                          if (!form.formState.errors) {
+                          if (!Object.keys(form.formState.errors).length) {
                             setCurrentStep((prev) => prev + 1);
                           }
                         }}
                       />
                     );
-                  case "completion":
                   case "links":
                     return null;
+                  case "completion":
                   default:
                     return null;
                 }
