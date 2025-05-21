@@ -11,8 +11,11 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { enforceFirstLetter } from "@/helpers/enforce-first-letter";
+
 import { Textarea } from "@/components/ui/textarea";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Image, LoaderCircle } from "lucide-react";
+import { useUploadToStorage } from "@/hooks/use-upload-to-storage";
 
 type Props = {
   onNext: () => void;
@@ -21,29 +24,77 @@ type Props = {
 };
 
 export const BasicInfoStep = ({ onNext, onBack, control }: Props) => {
+  const { mutate: uploadToStorage } = useUploadToStorage();
+
   return (
     <div className="space-y-4">
       <h1 className="text-2xl font-bold">Basic Information</h1>
       <FormField
         control={control}
-        name="tag"
+        name="imageUrl"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Tag</FormLabel>
+            <div className="flex justify-between gap-2">
+              <FormLabel>Image</FormLabel>
+              <FormMessage />
+            </div>
             <FormControl>
-              <div className="flex items-center gap-2">
+              <div className="space-y-2">
+                <Avatar className="h-16 w-16">
+                  <AvatarImage src={field.value} />
+                  <AvatarFallback>
+                    {/* eslint-disable-next-line jsx-a11y/alt-text */}
+                    <Image size={25} />
+                  </AvatarFallback>
+                </Avatar>
                 <Input
-                  {...field}
-                  type="text"
-                  placeholder="@rootlink"
-                  onChange={(e) =>
-                    field.onChange(enforceFirstLetter("@", e.target.value))
-                  }
+                  type="file"
+                  className="w-fit"
+                  onChange={async (e) => {
+                    const file = (e.target as HTMLInputElement).files?.[0];
+
+                    if (!file) {
+                      return;
+                    }
+
+                    field.onChange(URL.createObjectURL(file));
+
+                    const data = await uploadToStorage(file);
+
+                    field.onChange(data.publicUrl);
+                  }}
                 />
               </div>
             </FormControl>
+          </FormItem>
+        )}
+      />
+      <FormField
+        control={control}
+        name="tag"
+        render={({ field }) => (
+          <FormItem>
+            <div className="flex justify-between gap-2">
+              <FormLabel>Tag</FormLabel>
+              <FormMessage />
+            </div>
+            <FormControl>
+              <div className="relative">
+                <Input
+                  type="text"
+                  placeholder="rootlink"
+                  className="peer ps-6 pe-12"
+                  {...field}
+                />
+                <span className="text-muted-foreground pointer-events-none absolute inset-y-0 start-0 flex items-center justify-center ps-3 text-sm peer-disabled:opacity-50">
+                  @
+                </span>
+                <span className="text-muted-foreground pointer-events-none absolute inset-y-0 end-0 flex items-center justify-center pe-3 text-sm peer-disabled:opacity-50">
+                  .rootlink.com
+                </span>
+              </div>
+            </FormControl>
             <FormDescription>This is your public display tag.</FormDescription>
-            <FormMessage />
           </FormItem>
         )}
       />
@@ -52,7 +103,10 @@ export const BasicInfoStep = ({ onNext, onBack, control }: Props) => {
         name="bio"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Bio</FormLabel>
+            <div className="flex justify-between gap-2">
+              <FormLabel>Bio</FormLabel>
+              <FormMessage />
+            </div>
             <FormControl>
               <Textarea
                 placeholder="Write something about your page..."
@@ -63,7 +117,6 @@ export const BasicInfoStep = ({ onNext, onBack, control }: Props) => {
             <FormDescription>
               This is the bio that will be displayed on your page.
             </FormDescription>
-            <FormMessage />
           </FormItem>
         )}
       />

@@ -21,7 +21,7 @@ export default function OnboardingPage() {
     defaultValues: {
       tag: "",
       bio: "",
-      imageUrl: undefined,
+      imageUrl: "",
     },
   });
 
