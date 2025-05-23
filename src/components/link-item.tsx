@@ -17,7 +17,7 @@ export const LinkItem = <TFormValues extends FieldValues>({
   urlField,
 }: Props<TFormValues>) => {
   return (
-    <Card className="py-2">
+    <Card className="w-full py-2">
       <CardContent className="flex items-center justify-between px-4">
         <div className="flex flex-1 flex-col gap-1">
           <input

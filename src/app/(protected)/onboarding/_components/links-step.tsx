@@ -1,6 +1,8 @@
 import type { formSchema } from "@/app/(protected)/onboarding/schemas";
 import { LinkItem } from "@/components/link-item";
 import { NewLinkDialog } from "@/components/new-link-dialog";
+import { SortableItem } from "@/components/sortable-item";
+import { SortableList } from "@/components/sortable-list";
 import { Button } from "@/components/ui/button";
 import {
   useFieldArray,
@@ -24,10 +26,12 @@ export const LinksStep = ({
   control,
   register,
 }: Props) => {
-  const { fields, append, remove } = useFieldArray({
+  const { fields, append, remove, replace } = useFieldArray({
     control,
     name: "links",
   });
+
+  console.log(fields);
 
   return (
     <div className="space-y-4">
@@ -52,15 +56,20 @@ export const LinksStep = ({
 
       <NewLinkDialog onSubmit={(link) => append(link)} />
 
-      {fields.map((link, index) => (
-        <LinkItem
-          key={link.id}
-          register={register}
-          nameField={`links.${index}.name`}
-          urlField={`links.${index}.url`}
-          onRemove={() => remove(index)}
-        />
-      ))}
+      <SortableList
+        items={fields}
+        onChange={(newLinks) => replace(newLinks)}
+        renderItem={(link, index) => (
+          <SortableItem id={link.id}>
+            <LinkItem
+              register={register}
+              nameField={`links.${index}.name`}
+              urlField={`links.${index}.url`}
+              onRemove={() => remove(index)}
+            />
+          </SortableItem>
+        )}
+      />
 
       <div className="flex gap-4">
         <Button

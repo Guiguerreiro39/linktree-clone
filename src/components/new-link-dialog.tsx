@@ -52,7 +52,7 @@ export const NewLinkDialog = ({ onSubmit }: Props) => {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button type="button" variant="outline" size="sm">
+        <Button type="button" variant="dashed" size="sm">
           <Plus /> Add new link
         </Button>
       </DialogTrigger>
