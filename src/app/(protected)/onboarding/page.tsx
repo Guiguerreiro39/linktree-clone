@@ -7,8 +7,9 @@ import { Form } from "@/components/ui/form";
 import { useState } from "react";
 import { WelcomeStep } from "@/app/(protected)/onboarding/_components/welcome-step";
 import { Card, CardContent } from "@/components/ui/card";
-import { BasicInfoStep } from "@/app/(protected)/onboarding/_components/basic-info";
+import { BasicInfoStep } from "@/app/(protected)/onboarding/_components/basic-info-step";
 import { formSchema } from "./schemas";
+import { LinksStep } from "@/app/(protected)/onboarding/_components/links-step";
 
 const STEPS = ["welcome", "basic-info", "links", "completion"] as const;
 
@@ -68,16 +69,39 @@ export default function OnboardingPage() {
                         control={form.control}
                         onBack={() => setCurrentStep((prev) => prev - 1)}
                         onNext={async () => {
-                          await form.trigger();
+                          const isValid =
+                            (await form.trigger("tag")) &&
+                            (await form.trigger("bio")) &&
+                            (await form.trigger("imageUrl"));
 
-                          if (!Object.keys(form.formState.errors).length) {
+                          if (isValid) {
                             setCurrentStep((prev) => prev + 1);
                           }
                         }}
                       />
                     );
                   case "links":
-                    return null;
+                    return (
+                      <LinksStep
+                        register={form.register}
+                        control={form.control}
+                        onBack={() => setCurrentStep((prev) => prev - 1)}
+                        onSkip={() => setCurrentStep((prev) => prev + 1)}
+                        onNext={async () => {
+                          await form.trigger();
+
+                          console.log(form.formState.errors);
+
+                          if (
+                            !form.formState.errors.bio &&
+                            !form.formState.errors.tag &&
+                            !form.formState.errors.imageUrl
+                          ) {
+                            setCurrentStep((prev) => prev + 1);
+                          }
+                        }}
+                      />
+                    );
                   case "completion":
                   default:
                     return null;

@@ -55,10 +55,9 @@ export const BasicInfoStep = ({ onNext, onBack, control }: Props) => {
             <FormControl>
               <div className="relative">
                 <Input
-                  type="text"
+                  {...field}
                   placeholder="rootlink"
                   className="peer ps-6 pe-12"
-                  {...field}
                 />
                 <span className="text-muted-foreground pointer-events-none absolute inset-y-0 start-0 flex items-center justify-center ps-3 text-sm peer-disabled:opacity-50">
                   @
