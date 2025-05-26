@@ -1,7 +1,6 @@
 import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
 import { z } from "zod";
-import { zfd } from "zod-form-data";
-import { page } from "@/server/db/schema";
+import { link, page } from "@/server/db/schema";
 import { env } from "@/env";
 import { supabase } from "@/lib/supabase/client";
 import { TRPCError } from "@trpc/server";
@@ -13,10 +12,16 @@ export const pageRouter = createTRPCRouter({
         tag: z.string().min(1).max(30),
         bio: z.string().min(1).max(160),
         imageUrl: z.string().url().optional(),
+        links: z.array(
+          z.object({
+            name: z.string().max(80).optional(),
+            url: z.string().optional(),
+          }),
+        ),
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      return await ctx.db
+      const pageResponse = await ctx.db
         .insert(page)
         .values({
           tag: input.tag,
@@ -25,6 +30,27 @@ export const pageRouter = createTRPCRouter({
           userId: ctx.userId,
         })
         .returning();
+
+      if (!pageResponse[0]) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Failed to create page",
+        });
+      }
+
+      const pageId = pageResponse[0].id;
+
+      await Promise.all(
+        input.links.map((item) => {
+          return ctx.db.insert(link).values({
+            name: item.name,
+            url: item.url,
+            pageId,
+          });
+        }),
+      );
+
+      return pageResponse[0];
     }),
   get: protectedProcedure.query(async ({ ctx }) => {
     return await ctx.db.query.page.findFirst({

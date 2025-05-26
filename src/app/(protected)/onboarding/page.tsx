@@ -10,6 +10,9 @@ import { Card, CardContent } from "@/components/ui/card";
 import { BasicInfoStep } from "@/app/(protected)/onboarding/_components/basic-info-step";
 import { formSchema } from "./schemas";
 import { LinksStep } from "@/app/(protected)/onboarding/_components/links-step";
+import { CompletionStep } from "@/app/(protected)/onboarding/_components/completion-step";
+import { api } from "@/trpc/react";
+import { useRouter } from "next/navigation";
 
 const STEPS = ["welcome", "basic-info", "links", "completion"] as const;
 
@@ -26,8 +29,13 @@ export default function OnboardingPage() {
     },
   });
 
-  const onSubmit = () => {
-    console.log("nothing");
+  const router = useRouter();
+
+  const { mutateAsync, isPending } = api.page.create.useMutation();
+
+  const onSubmit = async () => {
+    await mutateAsync(form.getValues());
+    router.push("/admin");
   };
 
   return (
@@ -97,6 +105,12 @@ export default function OnboardingPage() {
                       />
                     );
                   case "completion":
+                    return (
+                      <CompletionStep
+                        isSubmitting={isPending}
+                        onBack={() => setCurrentStep((prev) => prev - 1)}
+                      />
+                    );
                   default:
                     return null;
                 }

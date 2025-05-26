@@ -1,0 +1,1 @@
+ALTER TABLE "linktree-clone_link" ALTER COLUMN "url" DROP NOT NULL;

@@ -19,7 +19,7 @@ export const link = createTable(
     name: d.varchar({ length: 256 }),
     pageId: d.uuid("page_id").notNull(),
 
-    url: d.text("url").notNull(),
+    url: d.text("url"),
 
     createdAt: d
       .timestamp({ withTimezone: true })

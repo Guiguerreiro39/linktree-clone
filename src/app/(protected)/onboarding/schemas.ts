@@ -12,7 +12,7 @@ export const formSchema = z.object({
   links: z.array(
     z.object({
       name: z.string().max(80).optional(),
-      url: z.string().url().optional(),
+      url: z.string().optional(),
     }),
   ),
 });
