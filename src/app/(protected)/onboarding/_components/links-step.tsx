@@ -4,6 +4,7 @@ import { NewLinkDialog } from "@/components/new-link-dialog";
 import { SortableItem } from "@/components/sortable-item";
 import { SortableList } from "@/components/sortable-list";
 import { Button } from "@/components/ui/button";
+import { Plus } from "lucide-react";
 import {
   useFieldArray,
   type Control,
@@ -14,39 +15,21 @@ import type { z } from "zod";
 type Props = {
   onNext: () => void;
   onBack: () => void;
-  onSkip: () => void;
   control: Control<z.infer<typeof formSchema>>;
   register: UseFormRegister<z.infer<typeof formSchema>>;
 };
 
-export const LinksStep = ({
-  onNext,
-  onBack,
-  onSkip,
-  control,
-  register,
-}: Props) => {
+export const LinksStep = ({ onNext, onBack, control, register }: Props) => {
   const { fields, append, remove, replace } = useFieldArray({
     control,
     name: "links",
   });
 
-  console.log(fields);
-
   return (
     <div className="space-y-4">
       <div>
-        <div className="flex items-center justify-between gap-2">
-          <h1 className="text-2xl font-bold">Add Your First Links</h1>
-          <Button
-            variant="ghost"
-            className="text-sm"
-            onClick={onSkip}
-            type="button"
-          >
-            Skip
-          </Button>
-        </div>
+        <h1 className="text-2xl font-bold">Add Your First Links</h1>
+
         <p className="text-muted-foreground text-sm">
           Let&apos;s add your first links to get started! This could be your
           website, social media profile, or any other URL you&apos;d like to
@@ -54,7 +37,14 @@ export const LinksStep = ({
         </p>
       </div>
 
-      <NewLinkDialog onSubmit={(link) => append(link)} />
+      <Button
+        type="button"
+        variant="dashed"
+        size="sm"
+        onClick={() => append({ name: "", url: "" })}
+      >
+        <Plus /> Add new link
+      </Button>
 
       <SortableList
         items={fields}

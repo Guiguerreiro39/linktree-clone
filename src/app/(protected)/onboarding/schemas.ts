@@ -11,11 +11,8 @@ export const formSchema = z.object({
   imageUrl: z.string().url().optional(),
   links: z.array(
     z.object({
-      name: z
-        .string()
-        .min(1, { message: "Name must be at least 1 character long" })
-        .max(30, { message: "Name must be at most 30 characters long" }),
-      url: z.string().url(),
+      name: z.string().max(80).optional(),
+      url: z.string().url().optional(),
     }),
   ),
 });

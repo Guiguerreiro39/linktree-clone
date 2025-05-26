@@ -22,10 +22,13 @@ export const LinkItem = <TFormValues extends FieldValues>({
         <div className="flex flex-1 flex-col gap-1">
           <input
             {...register(nameField)}
+            maxLength={80}
+            placeholder="Name of your link"
             className="min-w-0 font-semibold focus:outline-none"
           />
           <input
             className="text-muted-foreground w-full text-xs focus:outline-none"
+            placeholder="URL of your link"
             {...register(urlField)}
           />
         </div>

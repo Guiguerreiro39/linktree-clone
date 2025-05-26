@@ -69,10 +69,11 @@ export default function OnboardingPage() {
                         control={form.control}
                         onBack={() => setCurrentStep((prev) => prev - 1)}
                         onNext={async () => {
-                          const isValid =
-                            (await form.trigger("tag")) &&
-                            (await form.trigger("bio")) &&
-                            (await form.trigger("imageUrl"));
+                          const isValid = await form.trigger([
+                            "tag",
+                            "bio",
+                            "imageUrl",
+                          ]);
 
                           if (isValid) {
                             setCurrentStep((prev) => prev + 1);
@@ -86,17 +87,10 @@ export default function OnboardingPage() {
                         register={form.register}
                         control={form.control}
                         onBack={() => setCurrentStep((prev) => prev - 1)}
-                        onSkip={() => setCurrentStep((prev) => prev + 1)}
                         onNext={async () => {
-                          await form.trigger();
+                          const isValid = await form.trigger("links");
 
-                          console.log(form.formState.errors);
-
-                          if (
-                            !form.formState.errors.bio &&
-                            !form.formState.errors.tag &&
-                            !form.formState.errors.imageUrl
-                          ) {
+                          if (isValid) {
                             setCurrentStep((prev) => prev + 1);
                           }
                         }}
