@@ -4,9 +4,9 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <main className="bg-sidebar w-full">
+    <main className="bg-background flex h-screen w-full flex-col">
       <Navbar />
-      <div className="bg-background rounded-t-2xl p-4">{children}</div>
+      <div className="pb-6">{children}</div>
     </main>
   );
 }

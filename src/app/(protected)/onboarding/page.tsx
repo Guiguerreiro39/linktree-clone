@@ -26,6 +26,7 @@ export default function OnboardingPage() {
       tag: "",
       bio: "",
       imageUrl: undefined,
+      links: [],
     },
   });
 

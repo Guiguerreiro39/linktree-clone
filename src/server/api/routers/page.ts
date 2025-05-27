@@ -41,10 +41,11 @@ export const pageRouter = createTRPCRouter({
       const pageId = pageResponse[0].id;
 
       await Promise.all(
-        input.links.map((item) => {
+        input.links.map((item, index) => {
           return ctx.db.insert(link).values({
             name: item.name,
             url: item.url,
+            order: index,
             pageId,
           });
         }),
@@ -67,7 +68,7 @@ export const pageRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }) => {
       const { fileName, fileSize } = input;
 
-      const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50MB limit for example
+      const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB limit
 
       if (fileSize > MAX_FILE_SIZE) {
         throw new TRPCError({

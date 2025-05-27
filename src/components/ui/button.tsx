@@ -46,6 +46,7 @@ function Button({
   type = "button",
   children,
   isLoading = false,
+  disabled = false,
   ...props
 }: React.ComponentProps<"button"> &
   VariantProps<typeof buttonVariants> & {
@@ -59,6 +60,7 @@ function Button({
       type={type}
       data-slot="button"
       className={cn(buttonVariants({ variant, size, className }))}
+      disabled={disabled || isLoading}
       {...props}
     >
       {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : children}

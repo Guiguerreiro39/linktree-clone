@@ -21,6 +21,8 @@ export const link = createTable(
 
     url: d.text("url"),
 
+    order: d.integer("order").notNull(),
+
     createdAt: d
       .timestamp({ withTimezone: true })
       .default(sql`CURRENT_TIMESTAMP`)

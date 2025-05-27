@@ -1,3 +1,4 @@
+import { linkRouter } from "@/server/api/routers/link";
 import { pageRouter } from "@/server/api/routers/page";
 import { createCallerFactory, createTRPCRouter } from "@/server/api/trpc";
 
@@ -8,6 +9,7 @@ import { createCallerFactory, createTRPCRouter } from "@/server/api/trpc";
  */
 export const appRouter = createTRPCRouter({
   page: pageRouter,
+  link: linkRouter,
 });
 
 // export type definition of API
