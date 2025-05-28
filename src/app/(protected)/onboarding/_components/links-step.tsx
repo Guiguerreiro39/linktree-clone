@@ -1,12 +1,13 @@
 import type { formSchema } from "@/app/(protected)/onboarding/schemas";
 import { LinkItem } from "@/components/link-item";
-import { NewLinkDialog } from "@/components/new-link-dialog";
+
 import { SortableItem } from "@/components/sortable-item";
 import { SortableList } from "@/components/sortable-list";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import {
   useFieldArray,
+  useWatch,
   type Control,
   type UseFormRegister,
 } from "react-hook-form";
@@ -20,7 +21,12 @@ type Props = {
 };
 
 export const LinksStep = ({ onNext, onBack, control, register }: Props) => {
-  const { fields, append, remove, replace } = useFieldArray({
+  const { append, remove, replace } = useFieldArray({
+    control,
+    name: "links",
+  });
+
+  const currentLinks = useWatch({
     control,
     name: "links",
   });
@@ -41,13 +47,13 @@ export const LinksStep = ({ onNext, onBack, control, register }: Props) => {
         type="button"
         variant="dashed"
         size="sm"
-        onClick={() => append({ name: "", url: "" })}
+        onClick={() => append({ name: "", url: "", id: `temp-${Date.now()}` })}
       >
         <Plus /> Add new link
       </Button>
 
       <SortableList
-        items={fields}
+        items={currentLinks}
         onChange={(newLinks) => replace(newLinks)}
         renderItem={(link, index) => (
           <SortableItem id={link.id}>

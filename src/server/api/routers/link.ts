@@ -1,7 +1,7 @@
 import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
 import { link } from "@/server/db/schema";
 import { TRPCError } from "@trpc/server";
-import { and, eq } from "drizzle-orm";
+import { and, eq, inArray } from "drizzle-orm";
 import { z } from "zod";
 
 export const linkRouter = createTRPCRouter({
@@ -19,16 +19,17 @@ export const linkRouter = createTRPCRouter({
 
     return await ctx.db.query.link.findMany({
       where: (link, { eq }) => eq(link.pageId, page.id),
+      orderBy: (link, { asc }) => [asc(link.order)],
     });
   }),
-  delete: protectedProcedure
+  bulkDelete: protectedProcedure
     .input(
       z.object({
-        id: z.string(),
+        ids: z.array(z.string()),
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      const { id } = input;
+      const { ids } = input;
 
       const page = await ctx.db.query.page.findFirst({
         where: (page, { eq }) => eq(page.userId, ctx.userId),
@@ -41,19 +42,10 @@ export const linkRouter = createTRPCRouter({
         });
       }
 
-      const result = await ctx.db
+      return await ctx.db
         .delete(link)
-        .where(and(eq(link.id, id), eq(link.pageId, page.id)))
+        .where(and(inArray(link.id, ids), eq(link.pageId, page.id)))
         .returning();
-
-      if (result.length === 0) {
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: `Delete failed for link id ${id}`,
-        });
-      }
-
-      return { success: true };
     }),
   bulkUpdate: protectedProcedure
     .input(
@@ -102,19 +94,21 @@ export const linkRouter = createTRPCRouter({
           }
         }
       });
-
-      return { success: true };
     }),
-  create: protectedProcedure
+  bulkCreate: protectedProcedure
     .input(
       z.object({
-        name: z.string().max(80).optional(),
-        url: z.string().optional(),
-        order: z.number(),
+        links: z.array(
+          z.object({
+            name: z.string().max(80).optional(),
+            url: z.string().optional(),
+            order: z.number(),
+          }),
+        ),
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      const { name, url, order } = input;
+      const { links } = input;
 
       const page = await ctx.db.query.page.findFirst({
         where: (page, { eq }) => eq(page.userId, ctx.userId),
@@ -129,12 +123,14 @@ export const linkRouter = createTRPCRouter({
 
       return await ctx.db
         .insert(link)
-        .values({
-          name,
-          url,
-          order,
-          pageId: page.id,
-        })
+        .values(
+          links.map((link) => ({
+            name: link.name,
+            url: link.url,
+            order: link.order,
+            pageId: page.id,
+          })),
+        )
         .returning();
     }),
 });

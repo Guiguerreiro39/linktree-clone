@@ -14,9 +14,10 @@ export const basicInformationSchema = z.object({
 export const linksSchema = z.object({
   links: z.array(
     z.object({
-      linkId: z.string(),
+      id: z.string(),
       name: z.string().max(80).optional(),
       url: z.string().optional(),
+      order: z.number(),
     }),
   ),
 });

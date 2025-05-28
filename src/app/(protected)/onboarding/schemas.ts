@@ -11,6 +11,7 @@ export const formSchema = z.object({
   imageUrl: z.string().url().optional(),
   links: z.array(
     z.object({
+      id: z.string(),
       name: z.string().max(80).optional(),
       url: z.string().optional(),
     }),

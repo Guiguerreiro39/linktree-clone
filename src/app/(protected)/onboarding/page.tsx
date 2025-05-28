@@ -32,10 +32,25 @@ export default function OnboardingPage() {
 
   const router = useRouter();
 
-  const { mutateAsync, isPending } = api.page.create.useMutation();
+  const { mutateAsync: createPageMutation, isPending: isCreatingPage } =
+    api.page.create.useMutation();
+  const { mutateAsync: createLinksMutation, isPending: isCreatingLinks } =
+    api.link.bulkCreate.useMutation();
+
+  const isPending = isCreatingPage || isCreatingLinks;
 
   const onSubmit = async () => {
-    await mutateAsync(form.getValues());
+    const newPage = await createPageMutation(form.getValues());
+
+    await createLinksMutation({
+      links: form.getValues().links.map((link, index) => ({
+        name: link.name,
+        url: link.url,
+        order: index + 1,
+        pageId: newPage.id,
+      })),
+    });
+
     router.push("/admin");
   };
 
