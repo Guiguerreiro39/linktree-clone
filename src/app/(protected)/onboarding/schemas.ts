@@ -13,7 +13,7 @@ export const formSchema = z.object({
     z.object({
       id: z.string(),
       name: z.string().max(80).optional(),
-      url: z.string().optional(),
+      url: z.union([z.string().url(), z.literal("")]),
     }),
   ),
 });

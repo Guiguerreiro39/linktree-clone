@@ -5,22 +5,16 @@ import { SortableItem } from "@/components/sortable-item";
 import { SortableList } from "@/components/sortable-list";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
-import {
-  useFieldArray,
-  useWatch,
-  type Control,
-  type UseFormRegister,
-} from "react-hook-form";
+import { useFieldArray, useWatch, type Control } from "react-hook-form";
 import type { z } from "zod";
 
 type Props = {
   onNext: () => void;
   onBack: () => void;
   control: Control<z.infer<typeof formSchema>>;
-  register: UseFormRegister<z.infer<typeof formSchema>>;
 };
 
-export const LinksStep = ({ onNext, onBack, control, register }: Props) => {
+export const LinksStep = ({ onNext, onBack, control }: Props) => {
   const { append, remove, replace } = useFieldArray({
     control,
     name: "links",
@@ -58,9 +52,11 @@ export const LinksStep = ({ onNext, onBack, control, register }: Props) => {
         renderItem={(link, index) => (
           <SortableItem id={link.id}>
             <LinkItem
-              register={register}
-              nameField={`links.${index}.name`}
-              urlField={`links.${index}.url`}
+              control={control}
+              fields={{
+                name: `links.${index}.name`,
+                url: `links.${index}.url`,
+              }}
               onRemove={() => remove(index)}
             />
           </SortableItem>

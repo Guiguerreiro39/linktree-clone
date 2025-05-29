@@ -108,7 +108,6 @@ export default function OnboardingPage() {
                   case "links":
                     return (
                       <LinksStep
-                        register={form.register}
                         control={form.control}
                         onBack={() => setCurrentStep((prev) => prev - 1)}
                         onNext={async () => {

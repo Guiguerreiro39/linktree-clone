@@ -13,6 +13,8 @@ import { Form } from "@/components/ui/form";
 import { api } from "@/trpc/react";
 import { useMemo } from "react";
 import { useGetChanges } from "./hooks/use-get-changes";
+import { toast } from "sonner";
+import { getFormFirstError } from "@/helpers/get-form-first-error";
 
 export const LinksSection = () => {
   const [data] = api.link.getAll.useSuspenseQuery();
@@ -29,7 +31,7 @@ export const LinksSection = () => {
   );
 
   const form = useForm<z.infer<typeof linksSchema>>({
-    mode: "onChange",
+    mode: "onSubmit",
     resolver: zodResolver(linksSchema),
     defaultValues: {
       links: initialFormData,
@@ -83,6 +85,8 @@ export const LinksSection = () => {
         ids: changes.toDelete.map((link) => link.id),
       });
     }
+
+    toast.success("Links saved successfully");
   };
 
   return (
@@ -94,30 +98,31 @@ export const LinksSection = () => {
         <div className="flex items-center justify-between">
           <h1 className="text-xl font-bold">Links</h1>
           {form.formState.isDirty && (
-            <Button
-              isLoading={isPending}
-              type="submit"
-              className="bg-primary text-primary-foreground"
-            >
+            <Button isLoading={isPending} variant="outline" type="submit">
               Save
             </Button>
           )}
         </div>
-        <Button
-          type="button"
-          variant="dashed"
-          size="sm"
-          onClick={() => {
-            append({
-              id: `temp-${Date.now()}`,
-              name: "",
-              url: "",
-              order: currentLinks.length,
-            });
-          }}
-        >
-          <Plus /> Add new link
-        </Button>
+        <div className="flex items-center justify-between gap-4">
+          <Button
+            type="button"
+            variant="dashed"
+            size="sm"
+            onClick={() => {
+              append({
+                id: `temp-${Date.now()}`,
+                name: "",
+                url: "",
+                order: currentLinks.length,
+              });
+            }}
+          >
+            <Plus /> Add new link
+          </Button>
+          <p className="text-destructive mr-8 text-sm">
+            {getFormFirstError(form.formState.errors)}
+          </p>
+        </div>
         <SortableList
           items={currentLinks}
           onChange={(newLinks) => {
@@ -131,9 +136,11 @@ export const LinksSection = () => {
           renderItem={(link, index) => (
             <SortableItem id={link.id}>
               <LinkItem
-                register={form.register}
-                nameField={`links.${index}.name`}
-                urlField={`links.${index}.url`}
+                control={form.control}
+                fields={{
+                  name: `links.${index}.name`,
+                  url: `links.${index}.url`,
+                }}
                 onRemove={() =>
                   remove(currentLinks.findIndex((item) => item.id === link.id))
                 }
