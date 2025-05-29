@@ -43,7 +43,7 @@ export const page = createTable("page", (d) => ({
   id: d.uuid("id").primaryKey().defaultRandom(),
   userId: d.uuid("user_id").notNull(),
 
-  tag: d.varchar("tag", { length: 30 }),
+  tag: d.varchar("tag", { length: 30 }).notNull(),
   bio: d.varchar("bio", { length: 160 }),
   imageUrl: d.text("image_url"),
 

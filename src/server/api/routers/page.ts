@@ -1,23 +1,46 @@
 import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
 import { z } from "zod";
-import { link, page } from "@/server/db/schema";
+import { page } from "@/server/db/schema";
 import { env } from "@/env";
 import { supabase } from "@/lib/supabase/client";
 import { TRPCError } from "@trpc/server";
+import { eq } from "drizzle-orm";
 
 export const pageRouter = createTRPCRouter({
+  update: protectedProcedure
+    .input(
+      z.object({
+        tag: z.string().min(1).max(30),
+        bio: z.string().max(160).optional(),
+        imageUrl: z.union([z.string().url().optional(), z.literal("")]),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const pageResponse = await ctx.db
+        .update(page)
+        .set({
+          tag: input.tag,
+          bio: input.bio,
+          imageUrl: input.imageUrl,
+        })
+        .where(eq(page.userId, ctx.userId))
+        .returning();
+
+      if (!pageResponse[0]) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Failed to update page",
+        });
+      }
+
+      return pageResponse[0];
+    }),
   create: protectedProcedure
     .input(
       z.object({
         tag: z.string().min(1).max(30),
-        bio: z.string().min(1).max(160),
-        imageUrl: z.string().url().optional(),
-        links: z.array(
-          z.object({
-            name: z.string().max(80).optional(),
-            url: z.string().optional(),
-          }),
-        ),
+        bio: z.string().max(160).optional(),
+        imageUrl: z.union([z.string().url().optional(), z.literal("")]),
       }),
     )
     .mutation(async ({ ctx, input }) => {
@@ -38,25 +61,21 @@ export const pageRouter = createTRPCRouter({
         });
       }
 
-      const pageId = pageResponse[0].id;
-
-      await Promise.all(
-        input.links.map((item, index) => {
-          return ctx.db.insert(link).values({
-            name: item.name,
-            url: item.url,
-            order: index,
-            pageId,
-          });
-        }),
-      );
-
       return pageResponse[0];
     }),
   get: protectedProcedure.query(async ({ ctx }) => {
-    return await ctx.db.query.page.findFirst({
+    const response = await ctx.db.query.page.findFirst({
       where: (page, { eq }) => eq(page.userId, ctx.userId),
     });
+
+    if (!response) {
+      throw new TRPCError({
+        code: "NOT_FOUND",
+        message: "Page not found",
+      });
+    }
+
+    return response;
   }),
   presignUpload: protectedProcedure
     .input(

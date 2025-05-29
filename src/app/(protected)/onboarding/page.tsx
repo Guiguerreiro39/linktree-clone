@@ -25,7 +25,7 @@ export default function OnboardingPage() {
     defaultValues: {
       tag: "",
       bio: "",
-      imageUrl: undefined,
+      imageUrl: "",
       links: [],
     },
   });
@@ -39,11 +39,11 @@ export default function OnboardingPage() {
 
   const isPending = isCreatingPage || isCreatingLinks;
 
-  const onSubmit = async () => {
-    const newPage = await createPageMutation(form.getValues());
+  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    const newPage = await createPageMutation(values);
 
     await createLinksMutation({
-      links: form.getValues().links.map((link, index) => ({
+      links: values.links.map((link, index) => ({
         name: link.name,
         url: link.url,
         order: index + 1,

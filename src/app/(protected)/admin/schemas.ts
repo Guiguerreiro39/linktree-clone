@@ -7,8 +7,9 @@ export const basicInformationSchema = z.object({
     .max(30, { message: "Tag must be at most 30 characters long" }),
   bio: z
     .string()
-    .max(160, { message: "Bio must be at most 160 characters long" }),
-  imageUrl: z.string().url().optional(),
+    .max(160, { message: "Bio must be at most 160 characters long" })
+    .optional(),
+  imageUrl: z.union([z.string().url().optional(), z.literal("")]),
 });
 
 export const linksSchema = z.object({
@@ -16,7 +17,7 @@ export const linksSchema = z.object({
     z.object({
       id: z.string(),
       name: z.string().max(80).optional(),
-      url: z.union([z.string().url(), z.literal("")]),
+      url: z.union([z.string().url().optional(), z.literal("")]),
       order: z.number(),
     }),
   ),

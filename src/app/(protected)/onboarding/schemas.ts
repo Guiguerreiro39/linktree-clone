@@ -8,12 +8,12 @@ export const formSchema = z.object({
   bio: z
     .string()
     .max(160, { message: "Bio must be at most 160 characters long" }),
-  imageUrl: z.string().url().optional(),
+  imageUrl: z.union([z.string().url().optional(), z.literal("")]),
   links: z.array(
     z.object({
       id: z.string(),
       name: z.string().max(80).optional(),
-      url: z.union([z.string().url(), z.literal("")]),
+      url: z.union([z.string().url().optional(), z.literal("")]),
     }),
   ),
 });

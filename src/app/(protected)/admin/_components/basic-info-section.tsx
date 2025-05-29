@@ -18,6 +18,9 @@ import type z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import type { inferRouterOutputs } from "@trpc/server";
 import type { AppRouter } from "@/server/api/root";
+import { Button } from "@/components/ui/button";
+import { api } from "@/trpc/react";
+import { toast } from "sonner";
 
 type Props = {
   page: inferRouterOutputs<AppRouter>["page"]["get"];
@@ -28,19 +31,39 @@ export const BasicInfoSection = ({ page }: Props) => {
     mode: "onChange",
     resolver: zodResolver(basicInformationSchema),
     defaultValues: {
-      tag: page?.tag ?? "",
-      bio: page?.bio ?? "",
-      imageUrl: page?.imageUrl ?? undefined,
+      tag: page.tag,
+      bio: page.bio ?? "",
+      imageUrl: page.imageUrl ?? "",
     },
   });
+
+  const { mutate, isPending } = api.page.update.useMutation({
+    onSuccess: () => {
+      toast.success("Basic information updated successfully");
+    },
+    onError: () => {
+      toast.error("Failed to update basic information");
+    },
+  });
+
+  const onSubmit = async (values: z.infer<typeof basicInformationSchema>) => {
+    mutate(values);
+  };
 
   return (
     <Form {...form}>
       <form
         className="max-w-3xl space-y-4"
-        onSubmit={form.handleSubmit(() => {})}
+        onSubmit={form.handleSubmit(onSubmit)}
       >
-        <h1 className="text-xl font-bold">Basic Information</h1>
+        <div className="flex items-center justify-between">
+          <h1 className="text-xl font-bold">Basic Information</h1>
+          {form.formState.isDirty && (
+            <Button isLoading={isPending} variant="outline" type="submit">
+              Save
+            </Button>
+          )}
+        </div>
         <FormField
           control={form.control}
           name="imageUrl"

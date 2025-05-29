@@ -56,37 +56,43 @@ export const LinksSection = () => {
 
   const getChanges = useGetChanges(initialFormData);
 
-  const onSubmit = async (values: z.infer<typeof linksSchema>) => {
+  const onSubmit = (values: z.infer<typeof linksSchema>) => {
     const changes = getChanges(values.links);
 
-    if (changes.toCreate.length > 0) {
-      await bulkCreateMutation({
-        links: changes.toCreate.map((link) => ({
-          name: link.name,
-          url: link.url,
-          order: link.order,
-        })),
-      });
-    }
-
-    if (changes.toUpdate.length > 0) {
-      await updateMutation({
-        links: changes.toUpdate.map((link) => ({
-          id: link.id,
-          name: link.name,
-          url: link.url,
-          order: link.order,
-        })),
-      });
-    }
-
-    if (changes.toDelete.length > 0) {
-      await deleteMutation({
-        ids: changes.toDelete.map((link) => link.id),
-      });
-    }
-
-    toast.success("Links saved successfully");
+    Promise.all([
+      (async () => {
+        if (changes.toCreate.length > 0) {
+          await bulkCreateMutation({
+            links: changes.toCreate.map((link) => ({
+              name: link.name,
+              url: link.url,
+              order: link.order,
+            })),
+          });
+        }
+      })(),
+      (async () => {
+        if (changes.toUpdate.length > 0) {
+          await updateMutation({
+            links: changes.toUpdate.map((link) => ({
+              id: link.id,
+              name: link.name,
+              url: link.url,
+              order: link.order,
+            })),
+          });
+        }
+      })(),
+      (async () => {
+        if (changes.toDelete.length > 0) {
+          await deleteMutation({
+            ids: changes.toDelete.map((link) => link.id),
+          });
+        }
+      })(),
+    ])
+      .then(() => toast.success("Links saved successfully"))
+      .catch(() => toast.error("Failed to save links"));
   };
 
   return (
