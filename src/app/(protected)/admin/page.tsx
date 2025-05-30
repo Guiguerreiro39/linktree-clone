@@ -15,7 +15,7 @@ export default async function AdminPage() {
 
   return (
     <HydrateClient>
-      <main className="container mx-auto space-y-8 overflow-auto">
+      <main className="container mx-auto max-w-4xl space-y-8 overflow-auto px-2">
         <BasicInfoSection page={page} />
         <LinksSection />
       </main>

@@ -37,9 +37,13 @@ export const BasicInfoSection = ({ page }: Props) => {
     },
   });
 
+  const utils = api.useUtils();
+
   const { mutate, isPending } = api.page.update.useMutation({
-    onSuccess: () => {
+    onSuccess: async () => {
       toast.success("Basic information updated successfully");
+      form.reset(form.watch(), { keepValues: true, keepDirty: false });
+      await utils.page.get.invalidate();
     },
     onError: () => {
       toast.error("Failed to update basic information");
@@ -52,14 +56,16 @@ export const BasicInfoSection = ({ page }: Props) => {
 
   return (
     <Form {...form}>
-      <form
-        className="max-w-3xl space-y-4"
-        onSubmit={form.handleSubmit(onSubmit)}
-      >
-        <div className="flex items-center justify-between">
+      <form className="space-y-4" onSubmit={form.handleSubmit(onSubmit)}>
+        <div className="flex h-8 items-center justify-between">
           <h1 className="text-xl font-bold">Basic Information</h1>
           {form.formState.isDirty && (
-            <Button isLoading={isPending} variant="outline" type="submit">
+            <Button
+              isLoading={isPending}
+              variant="outline"
+              type="submit"
+              size="sm"
+            >
               Save
             </Button>
           )}
