@@ -1,1 +1,0 @@
-ALTER TABLE "linktree-clone_page" RENAME COLUMN "page_image_url" TO "image_url";

@@ -108,7 +108,7 @@ export const LinksSection = () => {
       <form className="space-y-4" onSubmit={form.handleSubmit(onSubmit)}>
         <div className="flex h-8 items-center justify-between">
           <h1 className="text-xl font-bold">Links</h1>
-          {form.formState.isDirty && (
+          {form.formState.isDirty && form.formState.isValid && (
             <Button
               isLoading={isPending}
               variant="outline"

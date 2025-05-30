@@ -73,6 +73,8 @@ export const user = createTable("user", (d) => ({
   lastName: d.varchar("last_name", { length: 256 }),
   imageUrl: d.text("image_url").notNull(),
 
+  isOnboarded: d.boolean("is_onboarded").notNull().default(false),
+
   createdAt: d
     .timestamp("created_at", { withTimezone: true })
     .default(sql`CURRENT_TIMESTAMP`)

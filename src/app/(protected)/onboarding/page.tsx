@@ -47,7 +47,7 @@ export default function OnboardingPage() {
         name: link.name,
         url: link.url,
         order: index + 1,
-        pageId: newPage.id,
+        pageId: newPage?.id,
       })),
     });
 

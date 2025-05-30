@@ -7,7 +7,7 @@ import { z } from "zod";
 export const linkRouter = createTRPCRouter({
   getAll: protectedProcedure.query(async ({ ctx }) => {
     const page = await ctx.db.query.page.findFirst({
-      where: (page, { eq }) => eq(page.userId, ctx.userId),
+      where: (page, { eq }) => eq(page.userId, ctx.user.id),
     });
 
     if (!page) {
@@ -32,7 +32,7 @@ export const linkRouter = createTRPCRouter({
       const { ids } = input;
 
       const page = await ctx.db.query.page.findFirst({
-        where: (page, { eq }) => eq(page.userId, ctx.userId),
+        where: (page, { eq }) => eq(page.userId, ctx.user.id),
       });
 
       if (!page) {
@@ -64,7 +64,7 @@ export const linkRouter = createTRPCRouter({
       const { links } = input;
 
       const page = await ctx.db.query.page.findFirst({
-        where: (page, { eq }) => eq(page.userId, ctx.userId),
+        where: (page, { eq }) => eq(page.userId, ctx.user.id),
       });
 
       if (!page) {
@@ -111,7 +111,7 @@ export const linkRouter = createTRPCRouter({
       const { links } = input;
 
       const page = await ctx.db.query.page.findFirst({
-        where: (page, { eq }) => eq(page.userId, ctx.userId),
+        where: (page, { eq }) => eq(page.userId, ctx.user.id),
       });
 
       if (!page) {

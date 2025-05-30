@@ -1,1 +1,0 @@
-ALTER TABLE "linktree-clone_link" ADD COLUMN "order" integer NOT NULL;

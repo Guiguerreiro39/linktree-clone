@@ -1,71 +1,132 @@
 import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
 import { z } from "zod";
-import { page } from "@/server/db/schema";
+import { page, user } from "@/server/db/schema";
 import { env } from "@/env";
 import { supabase } from "@/lib/supabase/client";
 import { TRPCError } from "@trpc/server";
 import { eq } from "drizzle-orm";
+import postgres from "postgres";
 
 export const pageRouter = createTRPCRouter({
   update: protectedProcedure
     .input(
       z.object({
-        tag: z.string().min(1).max(30),
+        tag: z
+          .string()
+          .min(1, { message: "Tag must be at least 1 character long" })
+          .max(30, { message: "Tag must be at most 30 characters long" })
+          .refine(
+            (value) => {
+              const isValid = /[^a-z0-9-]/g.test(value);
+              if (!isValid) return true;
+
+              return false;
+            },
+            {
+              message:
+                "Tag should contain only lowercase letters, numbers, and hyphens",
+            },
+          ),
         bio: z.string().max(160).optional(),
         imageUrl: z.union([z.string().url().optional(), z.literal("")]),
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      const pageResponse = await ctx.db
-        .update(page)
-        .set({
-          tag: input.tag,
-          bio: input.bio,
-          imageUrl: input.imageUrl,
-        })
-        .where(eq(page.userId, ctx.userId))
-        .returning();
+      try {
+        const result = await ctx.db
+          .update(page)
+          .set({
+            tag: input.tag.toLowerCase(),
+            bio: input.bio,
+            imageUrl: input.imageUrl,
+          })
+          .where(eq(page.userId, ctx.user.id))
+          .returning();
 
-      if (!pageResponse[0]) {
+        return result[0];
+      } catch (error) {
+        // Check if it's a unique constraint violation
+        if (error instanceof postgres.PostgresError && error.code === "23505") {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "Tag already exists",
+          });
+        }
+
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
           message: "Failed to update page",
         });
       }
-
-      return pageResponse[0];
     }),
   create: protectedProcedure
     .input(
       z.object({
-        tag: z.string().min(1).max(30),
+        tag: z
+          .string()
+          .min(1, { message: "Tag must be at least 1 character long" })
+          .max(30, { message: "Tag must be at most 30 characters long" })
+          .refine(
+            (value) => {
+              const isValid = /[^a-z0-9-]/g.test(value);
+              if (!isValid) return true;
+
+              return false;
+            },
+            {
+              message:
+                "Tag should contain only lowercase letters, numbers, and hyphens",
+            },
+          ),
         bio: z.string().max(160).optional(),
         imageUrl: z.union([z.string().url().optional(), z.literal("")]),
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      const pageResponse = await ctx.db
-        .insert(page)
-        .values({
-          tag: input.tag,
-          bio: input.bio,
-          imageUrl: input.imageUrl,
-          userId: ctx.userId,
-        })
-        .returning();
+      if (ctx.user.isOnboarded) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "User is already onboarded",
+        });
+      }
 
-      if (!pageResponse[0]) {
+      try {
+        const result = await ctx.db
+          .insert(page)
+          .values({
+            tag: input.tag.toLowerCase(),
+            bio: input.bio,
+            imageUrl: input.imageUrl,
+            userId: ctx.user.id,
+          })
+          .returning();
+
+        if (result[0]) {
+          await ctx.db
+            .update(user)
+            .set({ isOnboarded: true })
+            .where(eq(user.id, ctx.user.id));
+        }
+
+        return result[0];
+      } catch (error) {
+        // Check if it's a unique constraint violation
+        if (error instanceof postgres.PostgresError && error.code === "23505") {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "Tag already exists",
+          });
+        }
+
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
           message: "Failed to create page",
         });
       }
-
-      return pageResponse[0];
     }),
-  get: protectedProcedure.query(async ({ ctx }) => {
+  getMyPage: protectedProcedure.query(async ({ ctx }) => {
     const response = await ctx.db.query.page.findFirst({
-      where: (page, { eq }) => eq(page.userId, ctx.userId),
+      where: (page, { eq }) => eq(page.userId, ctx.user.id),
     });
 
     if (!response) {

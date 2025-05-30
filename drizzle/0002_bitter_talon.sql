@@ -1,1 +1,0 @@
-ALTER TABLE "linktree-clone_user" RENAME COLUMN "profile_image_url" TO "image_url";

@@ -5,43 +5,8 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1747675869524,
-      "tag": "0000_futuristic_speed_demon",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1747746205199,
-      "tag": "0001_living_doomsday",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "7",
-      "when": 1747746252066,
-      "tag": "0002_bitter_talon",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "7",
-      "when": 1747746275354,
-      "tag": "0003_nasty_joshua_kane",
-      "breakpoints": true
-    },
-    {
-      "idx": 4,
-      "version": "7",
-      "when": 1748298031998,
-      "tag": "0004_bumpy_abomination",
-      "breakpoints": true
-    },
-    {
-      "idx": 5,
-      "version": "7",
-      "when": 1748373758032,
-      "tag": "0005_swift_golden_guardian",
+      "when": 1748617727890,
+      "tag": "0000_quiet_warstar",
       "breakpoints": true
     }
   ]

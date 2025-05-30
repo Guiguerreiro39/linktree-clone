@@ -16,24 +16,20 @@ import { Textarea } from "@/components/ui/textarea";
 import { useForm } from "react-hook-form";
 import type z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import type { inferRouterOutputs } from "@trpc/server";
-import type { AppRouter } from "@/server/api/root";
 import { Button } from "@/components/ui/button";
 import { api } from "@/trpc/react";
 import { toast } from "sonner";
 
-type Props = {
-  page: inferRouterOutputs<AppRouter>["page"]["get"];
-};
+export const BasicInfoSection = () => {
+  const [data] = api.page.getMyPage.useSuspenseQuery();
 
-export const BasicInfoSection = ({ page }: Props) => {
   const form = useForm<z.infer<typeof basicInformationSchema>>({
     mode: "onChange",
     resolver: zodResolver(basicInformationSchema),
     defaultValues: {
-      tag: page.tag,
-      bio: page.bio ?? "",
-      imageUrl: page.imageUrl ?? "",
+      tag: data.tag,
+      bio: data.bio ?? "",
+      imageUrl: data.imageUrl ?? "",
     },
   });
 
@@ -43,10 +39,10 @@ export const BasicInfoSection = ({ page }: Props) => {
     onSuccess: async () => {
       toast.success("Basic information updated successfully");
       form.reset(form.watch(), { keepValues: true, keepDirty: false });
-      await utils.page.get.invalidate();
+      await utils.page.getMyPage.invalidate();
     },
-    onError: () => {
-      toast.error("Failed to update basic information");
+    onError: (error) => {
+      toast.error(error.message);
     },
   });
 
@@ -59,7 +55,7 @@ export const BasicInfoSection = ({ page }: Props) => {
       <form className="space-y-4" onSubmit={form.handleSubmit(onSubmit)}>
         <div className="flex h-8 items-center justify-between">
           <h1 className="text-xl font-bold">Basic Information</h1>
-          {form.formState.isDirty && (
+          {form.formState.isDirty && form.formState.isValid && (
             <Button
               isLoading={isPending}
               variant="outline"
